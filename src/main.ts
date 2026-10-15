@@ -3,7 +3,10 @@ import { SoundManager } from './audio/sound.ts';
 import { BET_LEVELS } from './config/betLevels.ts';
 import { PRESENTATION } from './config/presentation.ts';
 import { createCryptoRng, createSeededRng } from './engine/rng.ts';
+import { ART } from './config/art.ts';
+import { loadOptionalImage } from './render/artLoader.ts';
 import { Scene } from './render/scene.ts';
+import { createSymbolTextures } from './render/symbols.ts';
 import { Autoplay } from './state/autoplay.ts';
 import { GameMachine } from './state/machine.ts';
 import { MemoryStorage } from './state/storage.ts';
@@ -58,7 +61,11 @@ async function start(): Promise<void> {
   // resizeTo only reacts to window resizes; also follow the stage itself (HUD wrapping, rotation).
   new ResizeObserver(() => app.resize()).observe(stage);
 
-  scene = new Scene(app, game, { isAutoplay: () => autoplay.active, sfx: sound });
+  const [textures, background] = await Promise.all([
+    createSymbolTextures(app.renderer, game.config.symbols),
+    loadOptionalImage(ART.basePath + ART.background),
+  ]);
+  scene = new Scene(app, game, { isAutoplay: () => autoplay.active, sfx: sound, textures, background });
 
   // Dev-only handle for debugging and automated checks. Stripped from production builds.
   if (import.meta.env.DEV) Object.assign(window, { game, sound });

@@ -1,5 +1,5 @@
 import gsap from 'gsap';
-import { Container, Graphics, Text, type Application } from 'pixi.js';
+import { Container, Graphics, Text, type Application, type Texture } from 'pixi.js';
 import { AUDIO } from '../config/audio.ts';
 import { GAME } from '../config/game.ts';
 import { PRESENTATION } from '../config/presentation.ts';
@@ -15,7 +15,8 @@ import { Particles, shake, type ParticleStyle } from './particles.ts';
 import { ReelGrid } from './reels.ts';
 import { winTier } from './rules.ts';
 import { Screen } from './screens.ts';
-import { createSymbolTextures } from './symbols.ts';
+import type { SymbolTextures } from './symbols.ts';
+import { Background } from './background.ts';
 
 const { colors, fontFamily, framePadding, headerHeight, particles: fx, screens, show, stageMargin, timing, turboFactor } =
   PRESENTATION;
@@ -31,6 +32,10 @@ export interface SceneOptions {
   /** Whether autoplay is running (screens then continue on their own sooner). */
   readonly isAutoplay: () => boolean;
   readonly sfx?: Sfx;
+  /** Symbol textures (built-in art or the player's images), from createSymbolTextures. */
+  readonly textures: SymbolTextures;
+  /** The player's background image, if any; otherwise a drawn forest. */
+  readonly background: Texture | null;
 }
 
 /**
@@ -45,6 +50,7 @@ export class Scene {
   private readonly particles: Particles;
   private readonly bigWin: BigWin;
   private readonly sfx: Sfx;
+  private readonly background: Background;
   private readonly info: Text;
   private readonly meter: Meter;
   private readonly screen: Screen;
@@ -64,8 +70,8 @@ export class Scene {
     this.options = options;
     this.sfx = options.sfx ?? silentSfx;
     const cfg = game.config;
-    const textures = createSymbolTextures(app.renderer, cfg.symbols);
-    this.grid = new ReelGrid(textures, cfg);
+    this.grid = new ReelGrid(options.textures, cfg);
+    this.background = new Background(options.background);
 
     const frameW = this.grid.width + framePadding * 2;
     const frameH = this.grid.height + framePadding * 2;
@@ -99,7 +105,7 @@ export class Scene {
 
     this.shaker.addChild(frame, this.grid.view, this.meter.view, this.info);
     this.root.addChild(this.shaker, this.screen.view, this.bigWin.view, this.particles.view);
-    app.stage.addChild(this.root);
+    app.stage.addChild(this.background.view, this.root);
     this.sfx.music('musicBase');
     this.placeInfo('base');
 
@@ -127,6 +133,7 @@ export class Scene {
 
   private layout(): void {
     const { width, height } = this.app.screen;
+    this.background.resize(width, height);
     const margin = Math.min(width, height) * stageMargin;
     const scale = Math.min((width - margin * 2) / this.designWidth, (height - margin * 2) / this.designHeight);
     this.root.scale.set(scale);

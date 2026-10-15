@@ -1,65 +1,41 @@
-import { Container, Graphics, Rectangle, Text, Texture, type Renderer } from 'pixi.js';
+import { Container, Rectangle, Sprite, Text, Texture, type Renderer } from 'pixi.js';
+import { ART } from '../config/art.ts';
 import { PRESENTATION } from '../config/presentation.ts';
 import type { SymbolDef, SymbolId } from '../config/types.ts';
+import { drawSymbol } from './art.ts';
+import { loadOptionalImage } from './artLoader.ts';
 
-// Placeholder art: a coloured rounded tile with the symbol's label. Generated once as textures.
-// Swapped for real art in the final phase by replacing this module.
+// Symbol textures: an override image from public/art/ when the player has supplied one,
+// otherwise the built-in vector drawing (art.ts). Every texture ends up exactly one cell in
+// size, so the reels never need to care which it is.
 
-const { cell, colors, fontFamily, symbolColors } = PRESENTATION;
+const { cell, colors, fontFamily } = PRESENTATION;
 
 export type SymbolTextures = ReadonlyMap<SymbolId, Texture>;
 
-function drawTile(def: SymbolDef): Container {
-  const tile = new Container();
-  const color = symbolColors[def.id];
-  const shape = new Graphics();
-  if (def.kind === 'cash' || def.kind === 'trophy') {
-    // Trophies are shield shapes so they read differently from paying symbols.
-    const w = cell.width;
-    const h = cell.height;
-    shape
-      .moveTo(w * 0.1, h * 0.08)
-      .lineTo(w * 0.9, h * 0.08)
-      .lineTo(w * 0.9, h * 0.55)
-      .quadraticCurveTo(w * 0.9, h * 0.85, w * 0.5, h * 0.96)
-      .quadraticCurveTo(w * 0.1, h * 0.85, w * 0.1, h * 0.55)
-      .closePath();
-  } else {
-    shape.roundRect(4, 4, cell.width - 8, cell.height - 8, cell.radius);
-  }
-  shape.fill(color).stroke({ width: def.kind === 'wild' || def.kind === 'scatter' ? 6 : 3, color: colors.frameEdge });
-  tile.addChild(shape);
-
-  const isCash = def.kind === 'cash';
-  const label = new Text({
-    text: def.kind === 'trophy' ? '?' : def.label.toUpperCase(),
-    style: {
-      fontFamily,
-      fontWeight: 'bold',
-      fontSize: def.kind === 'low' ? 46 : def.label.length > 8 ? 17 : 22,
-      fill: colors.text,
-      align: 'center',
-      wordWrap: true,
-      wordWrapWidth: cell.width - 24,
-      dropShadow: { color: colors.textShadow, distance: 2, alpha: 0.7, blur: 2, angle: Math.PI / 4 },
-    },
-  });
-  label.anchor.set(0.5);
-  // Cash tiles keep the middle free for their value.
-  label.position.set(cell.width / 2, isCash ? cell.height * 0.24 : cell.height / 2);
-  tile.addChild(label);
-  return tile;
+/** Fits an image inside the cell, keeping its aspect ratio, centred. */
+function fitted(texture: Texture): Container {
+  const c = new Container();
+  const sprite = new Sprite(texture);
+  const scale = Math.min(cell.width / texture.width, cell.height / texture.height);
+  sprite.scale.set(scale);
+  sprite.anchor.set(0.5);
+  sprite.position.set(cell.width / 2, cell.height / 2);
+  c.addChild(sprite);
+  return c;
 }
 
-export function createSymbolTextures(renderer: Renderer, symbols: readonly SymbolDef[]): SymbolTextures {
+export async function createSymbolTextures(renderer: Renderer, symbols: readonly SymbolDef[]): Promise<SymbolTextures> {
+  const overrides = await Promise.all(symbols.map((def) => loadOptionalImage(ART.basePath + ART.symbols[def.id])));
   const textures = new Map<SymbolId, Texture>();
-  // Fixed frame so every texture is exactly one cell, whatever the shape's own bounds.
+  // Fixed frame so every texture is exactly one cell, whatever the content's own bounds.
   const frame = new Rectangle(0, 0, cell.width, cell.height);
-  for (const def of symbols) {
-    const tile = drawTile(def);
+  symbols.forEach((def, i) => {
+    const image = overrides[i];
+    const tile = image ? fitted(image) : drawSymbol(def);
     textures.set(def.id, renderer.generateTexture({ target: tile, resolution: 2, frame }));
     tile.destroy({ children: true });
-  }
+  });
   return textures;
 }
 

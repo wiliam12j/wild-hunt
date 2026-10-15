@@ -1,4 +1,4 @@
-import type { CashSymbolId, SymbolId } from './types.ts';
+import type { CashSymbolId } from './types.ts';
 
 // Look and timing of the game. Rendering reads these; nothing visual is hardcoded in /src/render.
 // Sizes are in "design units": the reel area is laid out at this size and scaled to fit.
@@ -72,27 +72,6 @@ export const PRESENTATION = {
   },
 
   fontFamily: 'Georgia, "Times New Roman", serif',
-
-  /** Placeholder art: one colour per symbol until the real art lands. */
-  symbolColors: {
-    TEN: 0x6b4f33,
-    J: 0x75573a,
-    Q: 0x806043,
-    K: 0x8b6a4b,
-    A: 0x977554,
-    RABBIT: 0x9c8f7a,
-    PHEASANT: 0xa5482e,
-    FOX: 0xc8692a,
-    STAG: 0x7a5230,
-    HUNTER: 0x2f5d3a,
-    LODGE: 0xb8862f,
-    CASH_RABBIT: 0x8c8c8c,
-    CASH_PHEASANT: 0x5a7fa6,
-    CASH_FOX: 0xb85c2c,
-    CASH_DEER: 0x7d3fa0,
-    CASH_GOLDEN_STAG: 0xe0b23a,
-    TROPHY: 0x6e5a3a,
-  } satisfies Record<SymbolId, number>,
 
   /** Space above the reel frame for messages and the free-spin meter. */
   headerHeight: 130,
