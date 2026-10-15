@@ -8,6 +8,7 @@ import type {
   ReelSet,
   SymbolDef,
   SymbolId,
+  TrophyWeights,
 } from '../config/types.ts';
 
 // All win amounts in the engine are multiples of the TOTAL bet.
@@ -25,6 +26,8 @@ export interface EngineConfig {
   readonly baseReels: ReelSet;
   readonly freeReels: ReelSet;
   readonly cashValues: CashValueTable;
+  /** Which Cash symbol a landed Trophy becomes, per game mode. */
+  readonly trophyWeights: { readonly base: TrophyWeights; readonly free: TrophyWeights };
   readonly freeSpins: {
     readonly minScatters: number;
     readonly spinsByScatterCount: Readonly<Record<MatchCount, number>>;

@@ -1,4 +1,4 @@
-import { CASH_VALUES } from '../config/cashValues.ts';
+import { CASH_VALUES, TROPHY_WEIGHTS } from '../config/cashValues.ts';
 import { FREE_SPINS } from '../config/freeSpins.ts';
 import { GAME } from '../config/game.ts';
 import { PAYLINES } from '../config/paylines.ts';
@@ -18,5 +18,6 @@ export const DEFAULT_CONFIG: EngineConfig = {
   baseReels: BASE_REELS,
   freeReels: FREE_REELS,
   cashValues: CASH_VALUES,
+  trophyWeights: TROPHY_WEIGHTS,
   freeSpins: FREE_SPINS,
 };

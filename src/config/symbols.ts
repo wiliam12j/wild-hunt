@@ -20,4 +20,7 @@ export const SYMBOLS: readonly SymbolDef[] = [
   { id: 'CASH_FOX', kind: 'cash', label: 'Fox Trophy' },
   { id: 'CASH_DEER', kind: 'cash', label: 'Deer Trophy' },
   { id: 'CASH_GOLDEN_STAG', kind: 'cash', label: 'Golden Stag' },
+
+  // Only appears on strips. Turns into one of the Cash symbols above when it lands.
+  { id: 'TROPHY', kind: 'trophy', label: 'Trophy' },
 ];

@@ -1,7 +1,7 @@
 export { DEFAULT_CONFIG } from './defaultConfig.ts';
 export { createCryptoRng, createSeededRng, randomInt, weightedPick, type Rng } from './rng.ts';
 export { gridColumn, spinGrid } from './grid.ts';
-export { assignCashValues } from './cash.ts';
+export { assignCashValues, landCash, landTrophies } from './cash.ts';
 export { evaluateLine, evaluateLines } from './lines.ts';
 export { evaluateScatter } from './scatter.ts';
 export { evaluateCollect } from './collect.ts';

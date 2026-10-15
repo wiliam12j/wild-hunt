@@ -1,4 +1,4 @@
-import { assignCashValues } from './cash.ts';
+import { landCash } from './cash.ts';
 import { evaluateCollect } from './collect.ts';
 import { DEFAULT_CONFIG } from './defaultConfig.ts';
 import { spinGrid } from './grid.ts';
@@ -42,8 +42,7 @@ export function resolveSpin(
 
 /** One paid base-game spin. */
 export function spinBase(rng: Rng, cfg: EngineConfig = DEFAULT_CONFIG): SpinResult {
-  const spun = spinGrid(rng, cfg.baseReels, cfg.rows);
-  const cash = assignCashValues(rng, spun.grid, cfg);
+  const { spun, cash } = landCash(rng, spinGrid(rng, cfg.baseReels, cfg.rows), cfg.trophyWeights.base, cfg);
   return resolveSpin(
     spun,
     cash,

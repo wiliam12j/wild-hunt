@@ -1,4 +1,4 @@
-import { assignCashValues } from './cash.ts';
+import { landCash } from './cash.ts';
 import { DEFAULT_CONFIG } from './defaultConfig.ts';
 import { spinGrid } from './grid.ts';
 import type { Rng } from './rng.ts';
@@ -33,8 +33,7 @@ export function playFreeSpins(
 
   while (remaining > 0) {
     remaining--;
-    const spun = spinGrid(rng, cfg.freeReels, cfg.rows);
-    const cash = assignCashValues(rng, spun.grid, cfg);
+    const { spun, cash } = landCash(rng, spinGrid(rng, cfg.freeReels, cfg.rows), cfg.trophyWeights.free, cfg);
     const result = resolveSpin(
       spun,
       cash,

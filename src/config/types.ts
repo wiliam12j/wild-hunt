@@ -10,12 +10,14 @@ export type CashSymbolId =
   | 'CASH_FOX'
   | 'CASH_DEER'
   | 'CASH_GOLDEN_STAG';
+/** Strip-only placeholder; becomes a Cash symbol (drawn by weight) when it lands. */
+export type TrophySymbolId = 'TROPHY';
 
 /** Symbols that can form payline wins. */
 export type PayingSymbolId = LowSymbolId | HighSymbolId | WildSymbolId;
-export type SymbolId = PayingSymbolId | ScatterSymbolId | CashSymbolId;
+export type SymbolId = PayingSymbolId | ScatterSymbolId | CashSymbolId | TrophySymbolId;
 
-export type SymbolKind = 'low' | 'high' | 'wild' | 'scatter' | 'cash';
+export type SymbolKind = 'low' | 'high' | 'wild' | 'scatter' | 'cash' | 'trophy';
 
 export interface SymbolDef {
   readonly id: SymbolId;
@@ -44,3 +46,9 @@ export interface WeightedValue {
 }
 
 export type CashValueTable = Readonly<Record<CashSymbolId, readonly WeightedValue[]>>;
+
+/** Relative chance of each Cash symbol when a Trophy lands. */
+export type TrophyWeights = Readonly<Record<CashSymbolId, number>>;
+
+/** Symbol counts for one reel; the strip builder lays them out. */
+export type ReelCounts = Readonly<Partial<Record<SymbolId, number>>>;

@@ -126,6 +126,7 @@ describe('default config smoke run', () => {
       expect(round.win).toBeGreaterThanOrEqual(0);
       expect(round.win).toBeLessThanOrEqual(cfg.maxWinMultiplier);
       round.base.collect.hunters.forEach((h) => expect([1, 2, 3]).toContain(h.reel));
+      expect(round.base.grid.flat()).not.toContain('TROPHY');
       if (round.freeSpins) {
         triggered++;
         const fs = round.freeSpins;

@@ -1,4 +1,4 @@
-import type { CashValueTable } from './types.ts';
+import type { CashValueTable, TrophyWeights } from './types.ts';
 
 // Value assigned to a Cash symbol when it lands, in multiples of total bet.
 // One entry is drawn by weight. Placeholders; tune with the simulator.
@@ -34,4 +34,22 @@ export const CASH_VALUES: CashValueTable = {
     { value: 200, weight: 10 },
     { value: 250, weight: 5 },
   ],
+};
+
+// Which Cash symbol a landed TROPHY becomes. Relative weights; tune with the simulator.
+export const TROPHY_WEIGHTS: Readonly<{ base: TrophyWeights; free: TrophyWeights }> = {
+  base: {
+    CASH_RABBIT: 700,
+    CASH_PHEASANT: 200,
+    CASH_FOX: 70,
+    CASH_DEER: 25,
+    CASH_GOLDEN_STAG: 5,
+  },
+  free: {
+    CASH_RABBIT: 600,
+    CASH_PHEASANT: 250,
+    CASH_FOX: 100,
+    CASH_DEER: 40,
+    CASH_GOLDEN_STAG: 10,
+  },
 };

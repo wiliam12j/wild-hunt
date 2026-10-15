@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { BET_LEVELS, DEFAULT_BET_INDEX, STARTING_BALANCE } from '../src/config/betLevels.ts';
-import { CASH_VALUES } from '../src/config/cashValues.ts';
+import { CASH_VALUES, TROPHY_WEIGHTS } from '../src/config/cashValues.ts';
 import { FREE_SPINS } from '../src/config/freeSpins.ts';
 import { GAME } from '../src/config/game.ts';
 import { PAYLINES } from '../src/config/paylines.ts';
 import { PAYTABLE } from '../src/config/paytable.ts';
-import { BASE_REELS, FREE_REELS } from '../src/config/reelStrips.ts';
+import { minGap } from '../src/config/buildStrip.ts';
+import { BASE_REELS, FREE_REELS, STRIP_SPACING } from '../src/config/reelStrips.ts';
 import { SYMBOLS } from '../src/config/symbols.ts';
 import type { MatchCount } from '../src/config/types.ts';
 
@@ -76,6 +77,14 @@ describe.each([
       if (!allowed.includes(reel)) expect(strip).not.toContain('HUNTER');
     });
   });
+
+  it('never shows two of a spaced symbol on one reel', () => {
+    for (const strip of reels) {
+      for (const id of Object.keys(STRIP_SPACING) as (keyof typeof STRIP_SPACING)[]) {
+        expect(minGap(strip, id)).toBeGreaterThanOrEqual(GAME.rows);
+      }
+    }
+  });
 });
 
 describe('cash values', () => {
@@ -91,6 +100,15 @@ describe('cash values', () => {
         expect(weight).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+describe('trophy weights', () => {
+  it.each(['base', 'free'] as const)('%s covers every cash symbol with non-negative weights', (mode) => {
+    const weights = TROPHY_WEIGHTS[mode];
+    expect(Object.keys(weights).sort()).toEqual(idsOfKind('cash').sort());
+    for (const w of Object.values(weights)) expect(w).toBeGreaterThanOrEqual(0);
+    expect(Object.values(weights).reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
   });
 });
 
