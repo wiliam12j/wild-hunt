@@ -108,7 +108,7 @@ IDLE → SPINNING → EVALUATE_LINES → RESOLVE_COLLECT → PAYOUT → (FREE_SP
 
 Actions locked during spins. Support: bet up/down, spin, quick stop, turbo spin, autoplay (10/25/50/100 with stop-on-big-win and stop-on-feature options).
 
-Wallet and Profit/Loss leaderboard
+Wallet and Profit/Loss leaderboard (leaderboard DEFERRED: no backend for now; wallet and per-device stats are built)
 Each player starts with 1,000 credits, with a "reset balance" button that starts a new run.
 Bet levels (config): 1, 2, 5, 10, 20, 50, 100 total bet.
 Track per player: balance, total wagered, total won, P/L = total won - total wagered, spins played, biggest win (x), best free-spin round.
@@ -131,7 +131,7 @@ Simulator: results reporting as above, then a first balancing pass to hit the ta
 State machine and wallet: headless flow with session stats.
 Rendering with placeholder art: reels, spin animation, line highlights.
 Features in UI: collect animations, free-spin intro/summary, multiplier meter, bet panel, autoplay, turbo.
-Leaderboard: backend, P/L tracking, leaderboard screen.
+Leaderboard: backend, P/L tracking, leaderboard screen. DEFERRED (Oct 2026): skipped until we want a backend; go straight to Juice.
 Juice: audio, particles, win overlays, anticipation.
 Final art swap, balance re-check, mobile testing, deploy.
 Definition of done per phase
