@@ -1,11 +1,22 @@
+import gsap from 'gsap';
 import { Container, Graphics } from 'pixi.js';
 import { PRESENTATION, type SpinTiming } from '../config/presentation.ts';
 import type { ReelSet } from '../config/types.ts';
 import type { EngineConfig, LineWin, Position, SpinResult } from '../engine/types.ts';
 import { Reel, type Landing } from './reel.ts';
+import { anticipatingReels } from './rules.ts';
 import type { SymbolTextures } from './symbols.ts';
 
-const { cell, colors, lineColors, lineWidth } = PRESENTATION;
+const { anticipation, cell, colors, lineColors, lineWidth } = PRESENTATION;
+
+export interface SpinHooks {
+  /** Whether anticipation may run (Scatters only exist in the base game). */
+  readonly anticipate: boolean;
+  /** A reel has landed. */
+  readonly onStop?: (reel: number) => void;
+  /** A reel has started its anticipation slow-down. */
+  readonly onAnticipate?: (reel: number) => void;
+}
 const PITCH_X = cell.width + cell.gap;
 const PITCH_Y = cell.height + cell.gap;
 
@@ -38,14 +49,46 @@ export class ReelGrid {
     this.reels.forEach((reel, i) => reel.setStrip(strips[i]!));
   }
 
-  /** Spins every reel onto the result, staggered. Resolves when the last reel settles. */
-  spin(result: SpinResult, cashLabel: (value: number) => string, timing: SpinTiming): Promise<void> {
+  /**
+   * Spins every reel onto the result, staggered. Reels after an exciting partial result (two
+   * Scatters, or a Hunter plus a Trophy) spin longer and glow. Resolves when the last settles.
+   */
+  spin(
+    result: SpinResult,
+    cashLabel: (value: number) => string,
+    timing: SpinTiming,
+    hooks: SpinHooks = { anticipate: false },
+  ): Promise<void> {
     this.clear();
-    return Promise.all(
-      this.reels.map((reel, i) =>
-        reel.spin(this.landing(result, i, cashLabel), timing, i * timing.startStagger, i * timing.stopStagger),
-      ),
-    ).then(() => undefined);
+    const anticipating = hooks.anticipate ? anticipatingReels(result.grid, this.cfg.symbols, anticipation) : [];
+    let extra = 0;
+    const landed = this.reels.map((reel, i) => {
+      if (anticipating[i]) extra += anticipation.extraTime;
+      return reel
+        .spin(this.landing(result, i, cashLabel), timing, i * timing.startStagger, i * timing.stopStagger + extra)
+        .then(() => hooks.onStop?.(i));
+    });
+    anticipating.forEach((on, i) => {
+      if (!on) return;
+      // Glow from when the previous reel lands until this one does.
+      void landed[i - 1]!.then(() => {
+        const glow = this.glow(i);
+        hooks.onAnticipate?.(i);
+        void landed[i]!.then(() => glow.destroy());
+      });
+    });
+    return Promise.all(landed).then(() => undefined);
+  }
+
+  private glow(reel: number): Graphics {
+    const pad = cell.gap / 2;
+    const g = new Graphics()
+      .roundRect(reel * PITCH_X - pad, -pad, cell.width + pad * 2, this.height + pad * 2, cell.radius)
+      .stroke({ width: 6, color: anticipation.glowColor });
+    this.effects.addChild(g);
+    gsap.fromTo(g, { alpha: 0.25 }, { alpha: 1, duration: 0.25, yoyo: true, repeat: -1 });
+    g.on('destroyed', () => gsap.killTweensOf(g));
+    return g;
   }
 
   slam(): void {

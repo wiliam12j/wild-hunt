@@ -17,6 +17,10 @@ export interface CollectPlan {
   readonly onTotal: (multiple: number) => void;
   /** 1 = normal speed; larger is faster (turbo). */
   readonly speed: number;
+  /** A net is thrown or a shot fired at a trophy. */
+  readonly onThrow?: (style: 'net' | 'shot', target: CashSymbol) => void;
+  /** The net lands on / the shot hits a trophy, at that point (effects-layer coordinates). */
+  readonly onHit?: (style: 'net' | 'shot', target: CashSymbol, at: { x: number; y: number }) => void;
 }
 
 /** A hunting net: a ring with cross-hatching, drawn centred on its origin. */
@@ -70,7 +74,9 @@ export function playCollect(layer: Container, plan: CollectPlan): Playing {
         layer.addChild(net);
         // Thrown in an arc: x/y linear, a lift on y, growing as it flies, then settling.
         const lift = { y: 0 };
-        tl.set(net, { alpha: 1 }, start)
+        tl.add(() => plan.onThrow?.('net', c), start)
+          .add(() => plan.onHit?.('net', c, to), start + cfg.effectTime)
+          .set(net, { alpha: 1 }, start)
           .to(net, { x: to.x, duration: cfg.effectTime, ease: 'none' }, start)
           .to(lift, {
             y: 1,
@@ -97,7 +103,9 @@ export function playCollect(layer: Container, plan: CollectPlan): Playing {
         flash.scale.set(0.3);
         layer.addChild(tracer, flash);
         const hit = start + cfg.effectTime * 0.4;
-        tl.to(tracer, { alpha: 1, duration: 0.05 }, start)
+        tl.add(() => plan.onThrow?.('shot', c), start)
+          .add(() => plan.onHit?.('shot', c, to), hit)
+          .to(tracer, { alpha: 1, duration: 0.05 }, start)
           .to(tracer, { alpha: 0, duration: 0.2 }, start + 0.08)
           .to(flash, { alpha: 0.9, duration: 0.06 }, hit)
           .to(flash.scale, { x: 1.2, y: 1.2, duration: 0.3, ease: 'power2.out' }, hit)

@@ -83,7 +83,13 @@ export class Meter {
    * Fills one badge per collecting Hunter. Each time the meter fills it flashes, empties and
    * steps the ladder; a retrigger then shows "+N SPINS". Ends exactly on `next`.
    */
-  async advance(collected: number, next: MeterState, spinsAdded: number, speed: number): Promise<void> {
+  async advance(
+    collected: number,
+    next: MeterState,
+    spinsAdded: number,
+    speed: number,
+    hooks: { onFill?: () => void; onRetrigger?: () => void } = {},
+  ): Promise<void> {
     const tl = gsap.timeline();
     tl.timeScale(speed);
     let { badges, level } = this.state;
@@ -92,7 +98,10 @@ export class Meter {
     for (let i = 0; i < collected; i++) {
       badges++;
       const filled = badges;
-      tl.add(() => this.patch({ badges: filled }));
+      tl.add(() => {
+        this.patch({ badges: filled });
+        hooks.onFill?.();
+      });
       tl.fromTo(this.badgeViews[filled - 1]!.scale, { x: 1.5, y: 1.5 }, { x: 1, y: 1, duration: cfg.fillTime });
       if (badges === this.perUpgrade) {
         badges = 0;
@@ -108,6 +117,7 @@ export class Meter {
       tl.add(() => {
         this.popup.text = `+${spinsAdded} SPINS!`;
         this.patch({ totalSpins: next.totalSpins });
+        hooks.onRetrigger?.();
       });
       tl.fromTo(this.popup, { alpha: 0 }, { alpha: 1, duration: 0.15 });
       tl.fromTo(this.popup.scale, { x: 0.5, y: 0.5 }, { x: 1.2, y: 1.2, duration: 0.35, ease: 'back.out(2)' }, '<');

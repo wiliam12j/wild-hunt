@@ -4,10 +4,20 @@ import { PRESENTATION } from '../config/presentation.ts';
 import type { Autoplay, AutoplayStopReason } from '../state/autoplay.ts';
 import type { GameMachine } from '../state/machine.ts';
 import { toCents } from '../state/wallet.ts';
+import { winTier } from '../render/rules.ts';
+import { GAME } from '../config/game.ts';
 import { formatCredits } from './format.ts';
+
+export interface HudAudio {
+  readonly muted: boolean;
+  readonly volume: number;
+  setMuted(muted: boolean): void;
+  setVolume(volume: number): void;
+}
 
 export interface HudControls {
   readonly game: GameMachine;
+  readonly audio: HudAudio;
   readonly autoplay: Autoplay;
   readonly betLevels: readonly number[];
   /** Hurries the current animation; returns true if there was one. */
@@ -38,6 +48,10 @@ export function mountHud(root: HTMLElement, controls: HudControls): void {
     <button class="hud-auto" data-auto aria-haspopup="true">AUTO</button>
     <label class="hud-toggle"><input type="checkbox" data-turbo /> Turbo</label>
     <button class="hud-small" data-reset>Reset balance</button>
+    <div class="hud-sound">
+      <button class="hud-small" data-mute aria-pressed="false">Sound on</button>
+      <input type="range" min="0" max="1" step="0.05" data-volume aria-label="Volume" />
+    </div>
     <p class="hud-note" data-note role="status"></p>
 
     <div class="hud-pop" data-bet-panel hidden>
@@ -70,6 +84,21 @@ export function mountHud(root: HTMLElement, controls: HudControls): void {
   const turbo = $<HTMLInputElement>('[data-turbo]');
   const reset = $<HTMLButtonElement>('[data-reset]');
   const note = $('[data-note]');
+  const mute = $<HTMLButtonElement>('[data-mute]');
+  const volume = $<HTMLInputElement>('[data-volume]');
+  const { audio } = controls;
+  const renderSound = () => {
+    mute.textContent = audio.muted ? 'Sound off' : 'Sound on';
+    mute.setAttribute('aria-pressed', String(audio.muted));
+    volume.value = String(audio.volume);
+    volume.disabled = audio.muted;
+  };
+  mute.addEventListener('click', () => {
+    audio.setMuted(!audio.muted);
+    renderSound();
+  });
+  volume.addEventListener('input', () => audio.setVolume(Number(volume.value)));
+  renderSound();
 
   // ---- popovers ----
   const panels = [betPanel, autoPanel];
@@ -119,7 +148,12 @@ export function mountHud(root: HTMLElement, controls: HudControls): void {
     }
     const { perX, min, max } = PRESENTATION.winCountUp;
     const x = (cents - shownWin.cents) / toCents(game.bet);
-    const duration = Math.min(max, Math.max(min, x * perX)) * (game.turbo ? PRESENTATION.turboFactor : 1);
+    // Big wins count at the same pace as the Big/Mega/Epic overlay so the two agree.
+    const tier = winTier(x, GAME.winTiers);
+    const fast = game.turbo || autoplay.active;
+    const duration = tier
+      ? PRESENTATION.bigWin.countTime[tier] * (fast ? PRESENTATION.turboFactor : 1)
+      : Math.min(max, Math.max(min, x * perX)) * (game.turbo ? PRESENTATION.turboFactor : 1);
     winTween = gsap.to(shownWin, { cents, duration, ease: 'power1.out', onUpdate: drawWin });
   };
 

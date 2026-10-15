@@ -139,6 +139,44 @@ export const PRESENTATION = {
     overlayAlpha: 0.72,
   },
 
+  anticipation: {
+    /** Slow the remaining reels once this many Scatters are showing. */
+    scatters: 2,
+    /** Also slow them once a Hunter and a Trophy have both landed (base game only). */
+    collect: true,
+    /** Extra seconds added per anticipating reel. */
+    extraTime: 0.85,
+    glowColor: 0xffc857,
+  },
+
+  particles: {
+    /** Max live particles; bursts beyond this are trimmed. */
+    limit: 400,
+    gravity: 900,
+    spark: { colors: [0xfff1c1, 0xffc857, 0xff9f43], count: 18, speed: 520, life: 0.45, size: 5 },
+    smoke: { colors: [0x8d8576, 0x6f685c], count: 10, speed: 110, life: 0.9, size: 16 },
+    dust: { colors: [0xb39b6b, 0x8f7a52], count: 14, speed: 220, life: 0.6, size: 7 },
+    coin: { colors: [0xffd166, 0xe0b23a, 0xfff1c1], speed: 900, life: 2.2, size: 11 },
+    lineSpark: { colors: [0xffe08a], count: 6, speed: 160, life: 0.5, size: 4 },
+  },
+
+  shake: {
+    /** Design units of displacement for a normal shot and for Deer / Golden Stag shots. */
+    shot: 5,
+    bigShot: 14,
+    duration: 0.25,
+  },
+
+  bigWin: {
+    labels: { big: 'BIG WIN', mega: 'MEGA WIN', epic: 'EPIC WIN' },
+    /** Seconds the count-up takes, by the final tier reached. */
+    countTime: { big: 2.8, mega: 4.2, epic: 6.0 },
+    /** Seconds to hold the final amount before closing on its own. */
+    hold: 1.8,
+    /** Coins per second from the fountain. */
+    coinRate: 45,
+  },
+
   /** HUD win count-up: seconds = clamp(winX × perX, min, max). */
   winCountUp: { perX: 0.06, min: 0.25, max: 2.5 },
 
