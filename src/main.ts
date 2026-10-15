@@ -1,7 +1,9 @@
 import { Application } from 'pixi.js';
+import { BET_LEVELS } from './config/betLevels.ts';
 import { PRESENTATION } from './config/presentation.ts';
 import { createCryptoRng, createSeededRng } from './engine/rng.ts';
 import { Scene } from './render/scene.ts';
+import { Autoplay } from './state/autoplay.ts';
 import { GameMachine } from './state/machine.ts';
 import { MemoryStorage } from './state/storage.ts';
 import { mountHud } from './ui/hud.ts';
@@ -19,8 +21,11 @@ async function start(): Promise<void> {
       : { rng: createSeededRng(Number(seed)), storage: new MemoryStorage() },
   );
 
+  const autoplay = new Autoplay(game);
+  let scene: Scene | null = null;
+
   // Controls go in first so the stage's size is final before the canvas measures it.
-  mountHud(hud, game);
+  mountHud(hud, { game, autoplay, betLevels: BET_LEVELS, skip: () => scene?.skip() ?? false });
 
   const app = new Application();
   await app.init({
@@ -34,7 +39,7 @@ async function start(): Promise<void> {
   // resizeTo only reacts to window resizes; also follow the stage itself (HUD wrapping, rotation).
   new ResizeObserver(() => app.resize()).observe(stage);
 
-  new Scene(app, game);
+  scene = new Scene(app, game, { isAutoplay: () => autoplay.active });
 
   // Dev-only handle for debugging and automated checks. Stripped from production builds.
   if (import.meta.env.DEV) (window as unknown as { game: GameMachine }).game = game;

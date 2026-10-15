@@ -17,6 +17,8 @@ export class ReelGrid {
   private readonly reels: Reel[];
   private readonly dimLayer = new Graphics();
   private readonly lineLayer = new Graphics();
+  /** Free layer above the symbols for feature animations (collects etc.). */
+  readonly effects = new Container();
   private readonly cfg: EngineConfig;
 
   constructor(textures: SymbolTextures, cfg: EngineConfig) {
@@ -29,7 +31,7 @@ export class ReelGrid {
       this.view.addChild(reel.view);
       return reel;
     });
-    this.view.addChild(this.dimLayer, this.lineLayer);
+    this.view.addChild(this.dimLayer, this.lineLayer, this.effects);
   }
 
   setStrips(strips: ReelSet): void {

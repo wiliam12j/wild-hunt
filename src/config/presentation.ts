@@ -1,4 +1,4 @@
-import type { SymbolId } from './types.ts';
+import type { CashSymbolId, SymbolId } from './types.ts';
 
 // Look and timing of the game. Rendering reads these; nothing visual is hardcoded in /src/render.
 // Sizes are in "design units": the reel area is laid out at this size and scaled to fit.
@@ -93,6 +93,54 @@ export const PRESENTATION = {
     CASH_GOLDEN_STAG: 0xe0b23a,
     TROPHY: 0x6e5a3a,
   } satisfies Record<SymbolId, number>,
+
+  /** Space above the reel frame for messages and the free-spin meter. */
+  headerHeight: 130,
+
+  collect: {
+    /** Animation per trophy animal: a thrown net for small game, a rifle shot for the rest. */
+    style: {
+      CASH_RABBIT: 'net',
+      CASH_PHEASANT: 'shot',
+      CASH_FOX: 'shot',
+      CASH_DEER: 'shot',
+      CASH_GOLDEN_STAG: 'shot',
+    } satisfies Record<CashSymbolId, 'net' | 'shot'>,
+    /** Seconds for the net to fly or the shot to land. */
+    effectTime: 0.32,
+    /** Seconds for a trophy's value to fly to the Hunter. */
+    flyTime: 0.4,
+    /** Seconds between consecutive trophies being taken. */
+    stagger: 0.22,
+    /** Upper bound on one Hunter's whole sequence; stagger shrinks to fit. */
+    maxSequence: 2.0,
+    netColor: 0xd9c9a0,
+    shotColor: 0xfff1c1,
+    flashColor: 0xffffff,
+  },
+
+  meter: {
+    badgeRadius: 20,
+    badgeGap: 14,
+    emptyColor: 0x3a3226,
+    fillColor: 0x4f9a5c,
+    /** Seconds for one badge to fill. */
+    fillTime: 0.25,
+    /** Seconds for the upgrade flash, ladder step and "+N SPINS" popup. */
+    upgradeTime: 1.3,
+    ladderInactive: 0x6b5b40,
+  },
+
+  screens: {
+    /** Intro/summary continue on their own after this many seconds if nobody taps. */
+    autoContinue: 10,
+    /** ...or after this many while autoplay is running. */
+    autoContinueAutoplay: 2.5,
+    overlayAlpha: 0.72,
+  },
+
+  /** HUD win count-up: seconds = clamp(winX × perX, min, max). */
+  winCountUp: { perX: 0.06, min: 0.25, max: 2.5 },
 
   /** Payline colours, by payline index. */
   lineColors: [0xffd166, 0x06d6a0, 0xef476f, 0x118ab2, 0xf78c6b, 0x83d483, 0xc77dff, 0xffa3a3, 0x4cc9f0, 0xf4a261],
