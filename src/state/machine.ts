@@ -95,6 +95,9 @@ export class GameMachine {
 
   // ---- read-only view for the UI ----
 
+  get config(): EngineConfig {
+    return this.cfg;
+  }
   get state(): GameState {
     return this._state;
   }
