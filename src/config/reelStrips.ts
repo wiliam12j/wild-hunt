@@ -15,11 +15,11 @@ export const STRIP_SPACING: Readonly<Partial<Record<SymbolId, number>>> = {
 export const STRIP_SEEDS = { base: 1000, free: 2000 } as const;
 
 export const BASE_REEL_COUNTS: readonly ReelCounts[] = [
-  { TEN: 10, J: 10, Q: 9, K: 9, A: 8, RABBIT: 6, PHEASANT: 5, FOX: 4, STAG: 3, LODGE: 2, TROPHY: 4 },
-  { TEN: 10, J: 10, Q: 9, K: 9, A: 8, RABBIT: 6, PHEASANT: 5, FOX: 4, STAG: 3, HUNTER: 2, LODGE: 2, TROPHY: 4 },
-  { TEN: 10, J: 10, Q: 9, K: 9, A: 8, RABBIT: 6, PHEASANT: 5, FOX: 4, STAG: 3, HUNTER: 2, LODGE: 2, TROPHY: 4 },
-  { TEN: 10, J: 10, Q: 9, K: 9, A: 8, RABBIT: 6, PHEASANT: 5, FOX: 4, STAG: 3, HUNTER: 2, LODGE: 2, TROPHY: 4 },
-  { TEN: 10, J: 10, Q: 9, K: 9, A: 8, RABBIT: 6, PHEASANT: 5, FOX: 4, STAG: 3, LODGE: 2, TROPHY: 4 },
+  { TEN: 9, J: 9, Q: 8, K: 7, A: 7, RABBIT: 8, PHEASANT: 7, FOX: 5, STAG: 4, LODGE: 2, TROPHY: 2 },
+  { TEN: 9, J: 9, Q: 8, K: 7, A: 7, RABBIT: 8, PHEASANT: 7, FOX: 5, STAG: 4, HUNTER: 2, LODGE: 2, TROPHY: 2 },
+  { TEN: 9, J: 9, Q: 8, K: 7, A: 7, RABBIT: 8, PHEASANT: 7, FOX: 5, STAG: 4, HUNTER: 2, LODGE: 2, TROPHY: 2 },
+  { TEN: 9, J: 9, Q: 8, K: 7, A: 7, RABBIT: 8, PHEASANT: 7, FOX: 5, STAG: 4, HUNTER: 2, LODGE: 2, TROPHY: 2 },
+  { TEN: 9, J: 9, Q: 8, K: 7, A: 7, RABBIT: 8, PHEASANT: 7, FOX: 5, STAG: 4, LODGE: 2, TROPHY: 2 },
 ];
 
 // Free spins: far more Trophies, no Scatters (retriggers come from Hunters).

@@ -39,11 +39,11 @@ export const CASH_VALUES: CashValueTable = {
 // Which Cash symbol a landed TROPHY becomes. Relative weights; tune with the simulator.
 export const TROPHY_WEIGHTS: Readonly<{ base: TrophyWeights; free: TrophyWeights }> = {
   base: {
-    CASH_RABBIT: 700,
-    CASH_PHEASANT: 200,
-    CASH_FOX: 70,
-    CASH_DEER: 25,
-    CASH_GOLDEN_STAG: 5,
+    CASH_RABBIT: 892,
+    CASH_PHEASANT: 85,
+    CASH_FOX: 18,
+    CASH_DEER: 4,
+    CASH_GOLDEN_STAG: 1,
   },
   free: {
     CASH_RABBIT: 600,
