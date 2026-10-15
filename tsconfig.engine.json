@@ -1,0 +1,10 @@
+{
+  // Engine + config must run headless in Node. No DOM lib and no ambient types here,
+  // so any reference to window/document/Pixi fails to compile.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/engine", "src/config"]
+}

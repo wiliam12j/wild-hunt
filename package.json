@@ -1,0 +1,20 @@
+{
+  "name": "wild-hunt",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Hunting-themed play-money slot for friends. No real money.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.engine.json"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}
