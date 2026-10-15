@@ -46,13 +46,13 @@ function runJob(job: ChunkJob): Promise<SimStats> {
 }
 
 const started = Date.now();
-let total = emptyStats(ladder.length);
+const chunks: SimStats[] = [];
 let done = 0;
 let next = 0;
 async function lane(): Promise<void> {
   while (next < jobs.length) {
-    const job = jobs[next++]!;
-    total = merge(total, await runJob(job));
+    const i = next++;
+    chunks[i] = await runJob(jobs[i]!);
     done++;
     if (process.stdout.isTTY) process.stdout.write(`\r${done}/${jobs.length} chunks`);
   }
@@ -60,6 +60,10 @@ async function lane(): Promise<void> {
 await Promise.all(Array.from({ length: Math.min(threads, jobs.length) }, lane));
 if (process.stdout.isTTY) process.stdout.write('\n\n');
 
+// Merge in chunk order so float sums come out identical on every run.
+const total = chunks.reduce(merge, emptyStats(ladder.length));
+
+if (total.rounds !== rounds) throw new Error(`Lost results: ran ${total.rounds} of ${rounds} rounds`);
 const seconds = (Date.now() - started) / 1000;
 const result = report(total, ladder);
 const meta = {

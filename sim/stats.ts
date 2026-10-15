@@ -20,6 +20,7 @@ export interface SimStats {
   baseCollectWin: number;
   scatterWin: number;
   baseHits: number;
+  baseLineHits: number;
   baseCollects: number;
 
   triggers: number;
@@ -45,6 +46,7 @@ export function emptyStats(ladderLength: number): SimStats {
     baseCollectWin: 0,
     scatterWin: 0,
     baseHits: 0,
+    baseLineHits: 0,
     baseCollects: 0,
     triggers: 0,
     freeWin: 0,
@@ -76,6 +78,7 @@ export function record(stats: SimStats, round: RoundResult, ladder: readonly num
   stats.baseCollectWin += base.collect.win;
   stats.scatterWin += base.scatter.win;
   if (base.win > 0) stats.baseHits++;
+  if (base.lineWins.length > 0) stats.baseLineHits++;
   if (base.collect.win > 0) stats.baseCollects++;
 
   if (freeSpins) {
@@ -103,6 +106,7 @@ export function merge(a: SimStats, b: SimStats): SimStats {
     baseCollectWin: a.baseCollectWin + b.baseCollectWin,
     scatterWin: a.scatterWin + b.scatterWin,
     baseHits: a.baseHits + b.baseHits,
+    baseLineHits: a.baseLineHits + b.baseLineHits,
     baseCollects: a.baseCollects + b.baseCollects,
     triggers: a.triggers + b.triggers,
     freeWin: a.freeWin + b.freeWin,
@@ -125,6 +129,7 @@ export interface SimReport {
   scatterRtp: number;
   freeRtp: number;
   hitFrequency: number;
+  lineHitFrequency: number;
   baseCollectFrequency: number;
   triggerOneIn: number;
   avgFreeSpinWin: number;
@@ -157,6 +162,7 @@ export function report(stats: SimStats, ladder: readonly number[]): SimReport {
     scatterRtp: stats.scatterWin / n,
     freeRtp: stats.freeWin / n,
     hitFrequency: stats.baseHits / n,
+    lineHitFrequency: stats.baseLineHits / n,
     baseCollectFrequency: stats.baseCollects / n,
     triggerOneIn: t === 0 ? Infinity : n / t,
     avgFreeSpinWin: t === 0 ? 0 : stats.freeWin / t,
@@ -189,7 +195,8 @@ export function formatReport(r: SimReport, meta: Record<string, string | number>
     ['    scatter bonus', pct(r.scatterRtp)],
     ['  free spins', `${pct(r.freeRtp)}  (${pct(r.freeRtp / r.rtp)} of total)`],
     ['Hit frequency', pct(r.hitFrequency)],
-    ['Base collect frequency', pct(r.baseCollectFrequency)],
+    ['  line hits', pct(r.lineHitFrequency)],
+    ['  collects', pct(r.baseCollectFrequency)],
     ['Free-spin trigger', oneIn(r.triggerOneIn)],
     ['Avg free-spin round', `${x(r.avgFreeSpinWin)} (sd ${x(r.freeSpinWinStdDev)})`],
     ['Avg spins per round', r.avgFreeSpinsPerRound.toFixed(1)],
