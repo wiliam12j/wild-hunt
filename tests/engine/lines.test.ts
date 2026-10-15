@@ -6,6 +6,7 @@ import { DEAD_ROW, S, gridFromRows } from './helpers.ts';
 
 const cfg = DEFAULT_CONFIG;
 const lines = cfg.paylines.length;
+const pay = cfg.paytable;
 const MIDDLE = 0; // payline 1 is the middle row
 
 /** Evaluates payline 1 with the given middle row and dead rows above and below. */
@@ -15,9 +16,9 @@ function middle(row: readonly SymbolId[]) {
 
 describe('evaluateLine', () => {
   it('pays 3, 4 and 5 of a kind from the left, in multiples of total bet', () => {
-    expect(middle([S.A, S.A, S.A, S.K, S.Q])).toMatchObject({ symbol: S.A, count: 3, win: 10 / lines });
-    expect(middle([S.ST, S.ST, S.ST, S.ST, S.Q])).toMatchObject({ symbol: S.ST, count: 4, win: 100 / lines });
-    expect(middle([S.FX, S.FX, S.FX, S.FX, S.FX])).toMatchObject({ symbol: S.FX, count: 5, win: 250 / lines });
+    expect(middle([S.A, S.A, S.A, S.K, S.Q])).toMatchObject({ symbol: S.A, count: 3, win: pay.A[3] / lines });
+    expect(middle([S.ST, S.ST, S.ST, S.ST, S.Q])).toMatchObject({ symbol: S.ST, count: 4, win: pay.STAG[4] / lines });
+    expect(middle([S.FX, S.FX, S.FX, S.FX, S.FX])).toMatchObject({ symbol: S.FX, count: 5, win: pay.FOX[5] / lines });
   });
 
   it('does not pay 2 of a kind or matches that skip the first reel', () => {
@@ -32,11 +33,12 @@ describe('evaluateLine', () => {
   });
 
   it('pays Hunters as their own line when that beats the substituted symbol', () => {
-    // 3 Hunters (50) beats 4 Tens (15).
-    expect(middle([S.W, S.W, S.W, S.T, S.J])).toMatchObject({ symbol: S.W, count: 3, win: 50 / lines });
-    // 5 Foxes (250) beats 3 Hunters (50).
-    expect(middle([S.W, S.W, S.W, S.FX, S.FX])).toMatchObject({ symbol: S.FX, count: 5, win: 250 / lines });
-    expect(middle([S.W, S.W, S.W, S.W, S.W])).toMatchObject({ symbol: S.W, count: 5, win: 1000 / lines });
+    // Relies on the paytable ordering below; fail loudly if tuning changes it.
+    expect(pay.HUNTER[3]).toBeGreaterThan(pay.TEN[4]);
+    expect(pay.FOX[5]).toBeGreaterThan(pay.HUNTER[3]);
+    expect(middle([S.W, S.W, S.W, S.T, S.J])).toMatchObject({ symbol: S.W, count: 3, win: pay.HUNTER[3] / lines });
+    expect(middle([S.W, S.W, S.W, S.FX, S.FX])).toMatchObject({ symbol: S.FX, count: 5, win: pay.FOX[5] / lines });
+    expect(middle([S.W, S.W, S.W, S.W, S.W])).toMatchObject({ symbol: S.W, count: 5, win: pay.HUNTER[5] / lines });
   });
 
   it('never substitutes for Scatter or Cash symbols', () => {
@@ -81,7 +83,7 @@ describe('evaluateLines', () => {
       0: [S.K, 3], // middle row
       1: [S.A, 5], // top row
     });
-    expect(wins.reduce((sum, w) => sum + w.win, 0)).toBeCloseTo((5 + 75) / lines);
+    expect(wins.reduce((sum, w) => sum + w.win, 0)).toBeCloseTo((pay.K[3] + pay.A[5]) / lines);
   });
 
   it('returns nothing for a dead grid', () => {
