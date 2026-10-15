@@ -33,7 +33,13 @@ export type MatchCount = 3 | 4 | 5;
 export type Payline = readonly number[];
 
 /** Payouts in multiples of the line bet, keyed by match count. */
-export type Paytable = Readonly<Record<PayingSymbolId, Readonly<Record<MatchCount, number>>>>;
+export type PayRow = Readonly<Record<MatchCount, number>>;
+/**
+ * Low and high symbols must pay. A Wild entry is optional: the live game omits it because
+ * the Hunter never lands on reel 1, so a line can never start with one.
+ */
+export type Paytable = Readonly<Record<LowSymbolId | HighSymbolId, PayRow>> &
+  Readonly<Partial<Record<WildSymbolId, PayRow>>>;
 
 export type ReelStrip = readonly SymbolId[];
 /** One strip per reel, left to right. */

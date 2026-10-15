@@ -1,0 +1,9 @@
+{
+  // Simulator runs in Node: Node types, no DOM.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["node"]
+  },
+  "include": ["sim", "src/engine", "src/config"]
+}

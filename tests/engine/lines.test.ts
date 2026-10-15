@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { SymbolId } from '../../src/config/types.ts';
 import { DEFAULT_CONFIG } from '../../src/engine/defaultConfig.ts';
 import { evaluateLine, evaluateLines } from '../../src/engine/lines.ts';
-import { DEAD_ROW, S, gridFromRows } from './helpers.ts';
+import { DEAD_ROW, S, gridFromRows, testConfig } from './helpers.ts';
 
 const cfg = DEFAULT_CONFIG;
 const lines = cfg.paylines.length;
@@ -32,21 +32,27 @@ describe('evaluateLine', () => {
     expect(middle([S.W, S.W, S.RB, S.K, S.Q])).toMatchObject({ symbol: S.RB, count: 3 });
   });
 
-  it('pays Hunters as their own line when that beats the substituted symbol', () => {
-    // Relies on the paytable ordering below; fail loudly if tuning changes it.
-    expect(pay.HUNTER[3]).toBeGreaterThan(pay.TEN[4]);
-    expect(pay.FOX[5]).toBeGreaterThan(pay.HUNTER[3]);
-    expect(middle([S.W, S.W, S.W, S.T, S.J])).toMatchObject({ symbol: S.W, count: 3, win: pay.HUNTER[3] / lines });
-    expect(middle([S.W, S.W, S.W, S.FX, S.FX])).toMatchObject({ symbol: S.FX, count: 5, win: pay.FOX[5] / lines });
-    expect(middle([S.W, S.W, S.W, S.W, S.W])).toMatchObject({ symbol: S.W, count: 5, win: pay.HUNTER[5] / lines });
+  it('pays Hunters as their own line, if configured, when that beats the substituted symbol', () => {
+    const withHunter = testConfig({ paytable: { ...pay, HUNTER: { 3: 50, 4: 200, 5: 1000 } } });
+    const line = (row: readonly SymbolId[]) =>
+      evaluateLine(gridFromRows([DEAD_ROW, row, DEAD_ROW]), withHunter, MIDDLE);
+    expect(pay.TEN[4]).toBeLessThan(50);
+    expect(pay.FOX[5]).toBeGreaterThan(50);
+    expect(line([S.W, S.W, S.W, S.T, S.J])).toMatchObject({ symbol: S.W, count: 3, win: 50 / lines });
+    expect(line([S.W, S.W, S.W, S.FX, S.FX])).toMatchObject({ symbol: S.FX, count: 5, win: pay.FOX[5] / lines });
+    expect(line([S.W, S.W, S.W, S.W, S.W])).toMatchObject({ symbol: S.W, count: 5, win: 1000 / lines });
+  });
+
+  it('pays nothing for a Hunter-only run when the paytable has no Hunter entry', () => {
+    expect(pay.HUNTER).toBeUndefined();
+    expect(middle([S.W, S.W, S.W, S.cR, S.Q])).toBeNull();
+    expect(middle([S.W, S.W, S.W, S.T, S.J])).toMatchObject({ symbol: S.T, count: 4 });
   });
 
   it('never substitutes for Scatter or Cash symbols', () => {
     expect(middle([S.SC, S.W, S.SC, S.SC, S.Q])).toBeNull();
     expect(middle([S.cR, S.W, S.cR, S.K, S.Q])).toBeNull();
     expect(middle([S.A, S.A, S.SC, S.A, S.A])).toBeNull();
-    // Hunters before a Cash symbol still pay as Hunters.
-    expect(middle([S.W, S.W, S.W, S.cR, S.Q])).toMatchObject({ symbol: S.W, count: 3 });
   });
 
   it('returns the winning cells along the payline', () => {

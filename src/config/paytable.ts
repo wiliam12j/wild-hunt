@@ -13,5 +13,6 @@ export const PAYTABLE: Paytable = {
   FOX: { 3: 30, 4: 100, 5: 400 },
   STAG: { 3: 50, 4: 150, 5: 750 },
 
-  HUNTER: { 3: 50, 4: 200, 5: 1000 },
+  // No HUNTER entry: it only lands on reels 2-4, so it can't start a line. It still
+  // substitutes for the symbols above.
 };

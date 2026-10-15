@@ -45,8 +45,9 @@ describe('paylines', () => {
 });
 
 describe('paytable', () => {
-  it('covers exactly the low, high and wild symbols', () => {
-    expect(Object.keys(PAYTABLE).sort()).toEqual(idsOfKind('low', 'high', 'wild').sort());
+  it('covers exactly the low and high symbols (the Hunter never starts a line)', () => {
+    expect(Object.keys(PAYTABLE).sort()).toEqual(idsOfKind('low', 'high').sort());
+    expect(GAME.wildReels).not.toContain(0);
   });
 
   it('has positive, non-decreasing pays for 3/4/5', () => {

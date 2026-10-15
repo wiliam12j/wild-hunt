@@ -5,7 +5,7 @@ import type { EngineConfig, Grid, LineWin } from './types.ts';
 /** Pay for `count` matches in multiples of the line bet, 0 if it doesn't pay. */
 function linePay(cfg: EngineConfig, symbol: PayingSymbolId, count: number): number {
   if (count < cfg.minMatch) return 0;
-  return cfg.paytable[symbol][Math.min(count, cfg.reels) as MatchCount] ?? 0;
+  return cfg.paytable[symbol]?.[Math.min(count, cfg.reels) as MatchCount] ?? 0;
 }
 
 /**

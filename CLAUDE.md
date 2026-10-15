@@ -59,7 +59,7 @@ Rabbit	10	30	100
 Pheasant	15	50	150
 Fox	20	75	250
 Stag	30	100	500
-Hunter Wild (as its own line)	50	200	1000
+Hunter Wild: no line pay of its own (it only lands on reels 2-4, so it can never start a line). It only substitutes. Live values are in /src/config/paytable.ts.
 Core feature: Hunter collect
 
 When a Hunter Wild lands on the same spin as one or more Cash symbols, the Hunter collects all visible Cash symbols, and each value is added to the win (multiplied by the current collect multiplier).
